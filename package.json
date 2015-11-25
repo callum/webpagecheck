@@ -1,0 +1,21 @@
+{
+  "name": "webpagecheck",
+  "version": "0.0.1",
+  "main": "index.js",
+  "bin": "./bin/webpagecheck",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/callum/webpagecheck.git"
+  },
+  "author": "Callum Jefferies <callum@callumj.uk> (http://callumj.uk/)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/callum/webpagecheck/issues"
+  },
+  "homepage": "https://github.com/callum/webpagecheck#readme",
+  "dependencies": {
+    "homedir": "^0.6.0",
+    "telegrambot": "0.0.11",
+    "yargs": "^3.30.0"
+  }
+}

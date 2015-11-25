@@ -1,0 +1,69 @@
+#!/usr/bin/env node
+
+var fs = require('fs')
+var path = require('path')
+var homedir = require('homedir')
+var TelegramBot = require('telegrambot')
+var webpagecheck = require('../')
+
+var argv = require('yargs')
+  .option('h', {
+    alias: 'hostname',
+    demand: true,
+    describe: 'webpage to lookup'
+  })
+  .option('k', {
+    alias: 'keyword',
+    demand: true,
+    describe: 'keyword(s) to look for',
+    type: 'array'
+  })
+  .option('m', {
+    alias: 'message',
+    describe: 'notification message',
+    default: 'found keyword'
+  })
+  .option('t', {
+    alias: 'token',
+    demand: true,
+    describe: 'telegram bot token'
+  })
+  .option('c', {
+    alias: 'chatid',
+    demand: true,
+    describe: 'telegram bot chat id'
+  })
+  .option('d', {
+    alias: 'directory',
+    describe: 'where to keep history',
+    default: homedir()
+  })
+  .argv
+
+var dir = path.join(argv.directory, '.webpagecheck')
+var file = path.join(dir, argv.hostname)
+
+webpagecheck(argv.hostname, argv.keyword, function (found, err) {
+  if (err) throw err
+
+  if (found) {
+    if (!fs.existsSync(file)) {
+      var bot = new TelegramBot(argv.token)
+
+      bot.sendMessage({
+        'chat_id': argv.chatid,
+        text: argv.hostname + ': ' + argv.message
+      }, function (err) {
+        if (err) throw err
+      })
+
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir)
+      }
+
+      fs.writeFileSync(file)
+    }
+  } else {
+    if (fs.existsSync(file)) fs.unlinkSync(file)
+  }
+})
