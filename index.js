@@ -1,21 +1,20 @@
 var http = require('http')
+var streamGrep = require('stream-grep')
 
 module.exports = function webpagecheck (hostname, keywords, callback) {
-  var req = http.request({ hostname: hostname }, function (res) {
-    var body = ''
+  var matchers = keywords.map(function (keyword) {
+    return new RegExp('\\b' + keyword + '\\b', 'i')
+  })
 
+  var req = http.request({ hostname: hostname }, function (res) {
     res.setEncoding('utf8')
 
-    res.on('data', function (chunk) {
-      body += chunk
+    streamGrep(res, matchers)
+    .on('found', function () {
+      callback(true, null)
     })
-
-    res.on('end', function () {
-      var containsKeywords = keywords.some(function (keyword) {
-        return body.search(new RegExp('\\b' + keyword + '\\b', 'i')) !== -1
-      })
-
-      callback(containsKeywords, null)
+    .on('end', function (found) {
+      if (!found) callback(false, null)
     })
   })
 
