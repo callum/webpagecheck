@@ -2,13 +2,14 @@
 
 var fs = require('fs')
 var path = require('path')
+var url = require('url')
 var homedir = require('homedir')
 var TelegramBot = require('telegrambot')
 var webpagecheck = require('../')
 
 var argv = require('yargs')
-  .option('h', {
-    alias: 'hostname',
+  .option('u', {
+    alias: 'url',
     demand: true,
     describe: 'webpage to lookup'
   })
@@ -40,10 +41,11 @@ var argv = require('yargs')
   })
   .argv
 
+var u = url.parse(argv.url)
 var dir = path.join(argv.directory, '.webpagecheck')
-var file = path.join(dir, argv.hostname)
+var file = path.join(dir, u.hostname)
 
-webpagecheck(argv.hostname, argv.keyword, function (found, err) {
+webpagecheck(u, argv.keyword, function (found, err) {
   if (err) throw err
 
   if (found) {
@@ -52,7 +54,7 @@ webpagecheck(argv.hostname, argv.keyword, function (found, err) {
 
       bot.sendMessage({
         'chat_id': argv.chatid,
-        text: argv.hostname + ': ' + argv.message
+        text: u.hostname + ': ' + argv.message
       }, function (err) {
         if (err) throw err
       })
