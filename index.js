@@ -1,12 +1,12 @@
 var http = require('http')
 var streamGrep = require('stream-grep')
 
-module.exports = function webpagecheck (hostname, keywords, callback) {
+module.exports = function webpagecheck (opts, keywords, callback) {
   var matchers = keywords.map(function (keyword) {
     return new RegExp('\\b' + keyword + '\\b', 'i')
   })
 
-  var req = http.request({ hostname: hostname }, function (res) {
+  var req = http.request(opts, function (res) {
     res.setEncoding('utf8')
 
     streamGrep(res, matchers)
